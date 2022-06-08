@@ -1,7 +1,7 @@
 #include "../main.h"
 
-int level1_num_waves = 1;
-wave level1_waves[1] = {
+int level1_num_waves = 6;
+wave level1_waves[6] = {
 	{
 		.flags = WAVE_TYPE_ENEMY,
 		.duration = 10,
@@ -11,7 +11,7 @@ wave level1_waves[1] = {
 		}
 	},
 
-	/*{
+	{
 		.flags = WAVE_TYPE_ENEMY,
 		.duration = 12,
 		.enemy_wave = {
@@ -56,5 +56,5 @@ wave level1_waves[1] = {
 			.num_enemies = 3,
 			.enemies = {ENEMY_TYPE_AIMER,	ENEMY_TYPE_AIMER,	ENEMY_TYPE_SCATTER},
 		},
-	},*/
+	},
 };
