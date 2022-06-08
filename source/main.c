@@ -191,16 +191,6 @@ bonus bonuses[6] = {
 		.value = 50,
 		.active = true,
 	},
-	{
-		.name = "Hm",
-		.value = 1000,
-		.active = true,
-	},
-	{
-		.name = "Testes",
-		.value = 300,
-		.active = true,
-	},
 };
 
 void spriteInit() {
@@ -517,6 +507,7 @@ int main(int argc, char* argv[]) {
 
 					if (inside_tri(cur->pos, v1, v2, v3)) {
 						pl.health -= 10;
+						set_bonus_active("No Damage Taken", false);
 						if (pl.health <= 0) {
 							setState(STATE_DEAD);
 							pl.health = pl.max_health;
@@ -528,6 +519,7 @@ int main(int argc, char* argv[]) {
 
 						if (inside_tri(cur->pos, v1, v2, v3)) {
 							pl.health -= 10;
+							set_bonus_active("No Damage Taken", false);
 							if (pl.health <= 0) {
 								setState(STATE_DEAD);
 								pl.health = pl.max_health;
@@ -688,7 +680,7 @@ int main(int argc, char* argv[]) {
 				if (number_of_bonuses <= num_valid_bonuses) {
 					if (number_of_bonuses < 3) {
 						for (int i = 0; i < number_of_bonuses; i++) {
-							bonus current = bonuses[i];
+							bonus current = valid_bonuses[i];
 							text = malloc(sizeof(*text) * 64);
 							if (!current.active) {
 								sprintf(text, "%s - 0", current.name);
@@ -703,7 +695,7 @@ int main(int argc, char* argv[]) {
 					} else {
 						int real_count = 0;
 						for (int i = number_of_bonuses - 3; i < number_of_bonuses; i++) {
-							bonus current = bonuses[i];
+							bonus current = valid_bonuses[i];
 							text = malloc(sizeof(*text) * 64);
 							if (!current.active) {
 								sprintf(text, "%s - 0", current.name);
@@ -720,7 +712,7 @@ int main(int argc, char* argv[]) {
 				} else {
 					if (num_valid_bonuses < 3) {
 						for (int i = 0; i < num_valid_bonuses; i++) {
-							bonus current = bonuses[i];
+							bonus current = valid_bonuses[i];
 							text = malloc(sizeof(*text) * 64);
 							if (!current.active) {
 								sprintf(text, "%s - 0", current.name);
@@ -735,7 +727,7 @@ int main(int argc, char* argv[]) {
 					} else {
 						int real_count = 0;
 						for (int i = num_valid_bonuses - 3; i < num_valid_bonuses; i++) {
-							bonus current = bonuses[i];
+							bonus current = valid_bonuses[i];
 							text = malloc(sizeof(*text) * 64);
 							if (!current.active) {
 								sprintf(text, "%s - 0", current.name);
@@ -882,4 +874,13 @@ void draw_text(char *text, int x, int y, int scalex, int scaley, float *width, f
 	C2D_TextGetDimensions(&text_obj, scalex, scaley, width, height);
 	C2D_DrawText(&text_obj, 0, x - (w / 2.0f), y, 0, scalex, scaley);
 	C2D_TextBufDelete(buf);
+}
+
+void set_bonus_active(char *name, bool active) {
+	for (int i = 0; i < num_bonuses; i++) {
+		if (strcmp(name, bonuses[i].name) == 0) {
+			bonuses[i].active = active;
+			return;
+		}
+	}
 }

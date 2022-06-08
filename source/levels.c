@@ -52,6 +52,12 @@ void level_spawner(int current_lv, level levels[]) {
 		next_wave++;
 	}
 	if (num_enemies <= 0) {
+		if (frame_num - last_wave_spawn >= seconds(levels[current_lv].waves[next_wave - 1].duration / 2.0f)) {
+			set_bonus_active("Speedy", false);
+		}
+		if (frame_num - last_wave_spawn >= seconds(3 * levels[current_lv].waves[next_wave - 1].duration / 4.0f)) {
+			set_bonus_active("Fast", false);
+		}
 		pl.health += 0.2;
 		if (pl.health >= pl.max_health) {
 			pl.health = pl.max_health;

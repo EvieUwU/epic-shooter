@@ -134,3 +134,4 @@ extern int score;
 extern C2D_Text unlocked_text;
 
 void draw_text(char *text, int x, int y, int scalex, int scaley, float *width, float *height);
+void set_bonus_active(char *name, bool active);
