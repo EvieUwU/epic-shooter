@@ -191,6 +191,16 @@ bonus bonuses[6] = {
 		.value = 50,
 		.active = true,
 	},
+	{
+		.name = "Cheapskate",
+		.value = 250,
+		.active = true,
+	},
+	{
+		.name = "Triggerhappy",
+		.value = 50,
+		.active = false,
+	},
 };
 
 void spriteInit() {
@@ -272,6 +282,8 @@ int main(int argc, char* argv[]) {
 
 	bonus valid_bonuses[num_bonuses];
 	int num_valid_bonuses = 0;
+
+	int bullets_fired = 0;
 
 	// Main loop
 	while (aptMainLoop()) {
@@ -401,6 +413,7 @@ int main(int argc, char* argv[]) {
 				if (frame_num - last_bullet > 5) {
 					create_bullet(pl.pos.x + pl.w - 4, pl.pos.y + pl.h / 2 - 1, ENEMY_TYPE_NONE, BULLET_SPEED, 0);
 					last_bullet = frame_num;
+					bullets_fired++;
 				}
 			}
 
@@ -649,6 +662,49 @@ int main(int argc, char* argv[]) {
 						sprintf(valid_bonuses[num_valid_bonuses].name, "%s", bonuses[i].name);
 						num_valid_bonuses++;
 					}
+				}
+
+				int total_health = 0;
+				for (int i = 0; i < levels[current_level - 1].num_waves; i++) {
+					wave cur = levels[current_level - 1].waves[i];
+					if (cur.flags & WAVE_TYPE_ENEMY) {
+						for (int j = 0; j < cur.enemy_wave.num_enemies; j++) {
+							switch (cur.enemy_wave.enemies[j]) {
+								case ENEMY_TYPE_SCATTER:
+									total_health += SCATTER_HEALTH;
+									break;
+								case ENEMY_TYPE_AIMER:
+									total_health += AIMER_HEALTH;
+									break;
+								case ENEMY_TYPE_MACHINE:
+									total_health += MACHINE_HEALTH;
+									break;
+								case ENEMY_TYPE_HAILER:
+									total_health += HAILER_HEALTH;
+									break;
+								default:
+									break;
+							}
+						}
+					}
+					if (cur.flags & WAVE_TYPE_BOSS) {
+						for (int j = 0; j < cur.boss_wave.num_bosses; j++) {
+							switch (cur.boss_wave.bosses[j]) {
+								case BOSS_TYPE_PROG:
+									total_health += PROG_HEALTH;
+									break;
+								default:
+									break;
+							}
+						}
+					}
+				}
+				int bullets = total_health / 10;
+				if (bullets_fired >= bullets * 1.25f) {
+					set_bonus_active("Cheapskate", false);
+				}
+				if (bullets_fired >= bullets * 6) {
+					set_bonus_active("Triggerhappy", true);
 				}
 			}
 
