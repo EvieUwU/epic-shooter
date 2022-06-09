@@ -58,7 +58,6 @@ typedef struct bonus {
 } bonus;
 
 #include "colours.h"
-#include "draw.h"
 #include "enemy.h"
 
 typedef struct bullet {
@@ -67,6 +66,7 @@ typedef struct bullet {
 	enemy_type from;
 } bullet;
 
+#include "draw.h"
 #include "behaviour.h"
 #include "map.h"
 #include "levels.h"
@@ -79,7 +79,7 @@ typedef struct bullet {
 #include "levels/all_levels.h"
 
 bool inside_tri(point p, point tri_1, point tri_2, point tri_3);
-bool inside_rect(point p, point rect_1, point rect_2, point rect_3, point rect_4);
+bool inside_rect(point p, point top_left, int w, int h);
 
 circlePosition readCStick(int dead_zone);
 float sign (point p1, point p2, point p3);

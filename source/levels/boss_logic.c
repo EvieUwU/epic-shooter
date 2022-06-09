@@ -21,10 +21,7 @@ bool boss_collision(bullet *cur, enemy *en) {
 	switch (en->boss.type) {
 		case BOSS_TYPE_PROG:
 			point a = (point){en->data.pos.x, en->data.pos.y};
-			point b = (point){en->data.pos.x + en->data.w, en->data.pos.y};
-			point c = (point){en->data.pos.x + en->data.w, en->data.pos.y + en->data.h};
-			point d = (point){en->data.pos.x, en->data.pos.y + en->data.h};
-			if (inside_rect(cur->pos, a, b, c, d)) {
+			if (inside_rect(cur->pos, a, en->data.w, en->data.h)) {
 				en->data.health -= 10;
 				score += 10;
 				return true;
@@ -55,9 +52,6 @@ void boss_spawn(boss_type type, int x, int y, int w, int h, int health) {
 void boss_render(enemy *en) {
 	switch (en->boss.type) {
 		case BOSS_TYPE_PROG:
-			printf("\x1b[1;1HBoss Position: %f, %f\x1b[K", en->data.pos.x, en->data.pos.y);
-			printf("\x1b[2;1HBoss Rotation: %f\x1b[K", en->boss.rotation);
-			printf("\x1b[3;1HBoss Scale: %f, %f\x1b[K", (float)en->data.w / (float)boss_sprites[0].image.tex->width, (float)en->data.h / (float)boss_sprites[0].image.tex->height);
 			C2D_DrawImageAt(en->boss.sprite, en->data.pos.x, en->data.pos.y, 1, NULL,
 							(float)en->data.w / (float)boss_sprites[0].image.tex->width, (float)en->data.h / (float)boss_sprites[0].image.tex->height);
 			break;

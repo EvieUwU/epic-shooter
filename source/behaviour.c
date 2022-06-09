@@ -132,7 +132,6 @@ void enemy_actions(enemy *en) {
 					e->since_last_action++;
 					break;
 				default:
-					printf("\x1b[15;1HUnknown enemy action: %d\x1b[K", e->actions);
 					break;
 			}
 			break;
@@ -151,7 +150,6 @@ void enemy_actions(enemy *en) {
 					e->since_last_action = 0;
 					break;
 				default:
-					printf("\x1b[15;1HUnknown enemy action: %d\x1b[K", e->actions);
 					break;
 			}
 			break;
@@ -164,7 +162,6 @@ void enemy_actions(enemy *en) {
 					e->since_last_action = 0;
 					break;
 				default:
-					printf("\x1b[15;1HUnknown enemy action: %d\x1b[K", e->actions);
 					break;
 			}
 			break;
@@ -180,7 +177,6 @@ void enemy_actions(enemy *en) {
 					e->since_last_action = 0;
 					break;
 				default:
-					printf("\x1b[15;1HUnknown enemy action: %d\x1b[K", e->actions);
 					break;
 			}
 			break;

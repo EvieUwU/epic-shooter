@@ -77,7 +77,6 @@ void delete_bullet(int idx) {
 void init_sprites() {
 	sprite_sheet = C2D_SpriteSheetLoad("romfs:/gfx/sprites.t3x");
 	if (!sprite_sheet) {
-		printf("Failed to load spritesheet\n");
 		svcBreak(USERBREAK_PANIC);
 	}
 }
@@ -117,8 +116,9 @@ bool inside_tri(point p, point tri_1, point tri_2, point tri_3) {
 	return !(has_neg && has_pos);
 }
 
-bool inside_rect(point p, point rect_1, point rect_2, point rect_3, point rect_4) {
-	return inside_tri(p, rect_1, rect_2, rect_3) || inside_tri(p, rect_1, rect_3, rect_4);
+bool inside_rect(point p, point top_left, int w, int h) {
+	return 	(p.x < top_left.x + w && p.x > top_left.x) &&
+			(p.y > top_left.y && p.y < top_left.y + h);
 }
 
 circlePosition pos;
@@ -441,9 +441,9 @@ int main(int argc, char* argv[]) {
 						switch (cur_enemy->type) {
 							case ENEMY_TYPE_SCATTER:
 								// Arrow type enemies
-								point v1 = (point){data->pos.x - data->w, data->pos.y + data->h / 2};
-								point v2 = (point){data->pos.x, data->pos.y};
-								point v3 = (point){data->pos.x - data->w / 4, data->pos.y + data->h / 2};
+								point v1 = (point){data->pos.x, data->pos.y + data->h / 2};
+								point v2 = (point){data->pos.x - data->w, data->pos.y};
+								point v3 = (point){data->pos.x + 3 * data->w / 4, data->pos.y + data->h / 2};
 
 								if (inside_tri(cur->pos, v1, v2, v3)) {
 									data->health -= 10;
@@ -473,8 +473,8 @@ int main(int argc, char* argv[]) {
 								// Circle type enemies
 								float dx = cur->pos.x - data->pos.x;
 								float dy = cur->pos.y - data->pos.y;
-								float dist = sqrt(dx * dx + dy * dy);
-								if (dist <= data->w) {
+								float dist = dx * dx + dy * dy;
+								if (dist <= data->w * data->w) {
 									data->health -= 10;
 									score += 10;
 									if (data->health <= 0) {
@@ -487,10 +487,7 @@ int main(int argc, char* argv[]) {
 							case ENEMY_TYPE_MACHINE:
 								// Rectangle type enemies
 								point a = (point){data->pos.x, data->pos.y};
-								point b = (point){data->pos.x + data->w, data->pos.y};
-								point c = (point){data->pos.x + data->w, data->pos.y + data->h};
-								point d = (point){data->pos.x, data->pos.y + data->h};
-								if (inside_rect(cur->pos, a, b, c, d)) {
+								if (inside_rect(cur->pos, a, data->w, data->h)) {
 									data->health -= 10;
 									score += 10;
 									if (data->health <= 0) {
@@ -583,63 +580,13 @@ int main(int argc, char* argv[]) {
 			// Draw enemies
 			for (int i = 0; i < num_enemies; i++) {
 				enemy cur = enemies[i];
-				enemy_data en = cur.data;
-				switch (cur.type) {
-					case ENEMY_TYPE_SCATTER:
-						C2D_DrawTriangle(	en.pos.x - en.w, en.pos.y + en.h / 2, colour_scatter_front, 
-											en.pos.x, en.pos.y, colour_scatter_back,
-											en.pos.x - en.w / 4, en.pos.y + en.h / 2, colour_scatter_mid, 0);
-						C2D_DrawTriangle(	en.pos.x - en.w / 4, en.pos.y + en.h / 2, colour_scatter_mid,
-											en.pos.x, en.pos.y + en.h, colour_scatter_back,
-											en.pos.x - en.w, en.pos.y + en.h / 2, colour_scatter_front, 0);
-						break;
-					case ENEMY_TYPE_AIMER:
-						C2D_DrawCircle(en.pos.x, en.pos.y, 0, en.w,
-										colour_aimer_tl, colour_aimer_br, colour_aimer_bl, colour_aimer_br);
-						break;
-					case ENEMY_TYPE_MACHINE:
-						if (cur.machine.shooting) {
-							C2D_DrawRectSolid(en.pos.x - en.w / 4, en.pos.y + en.h / 4, 0, en.w / 2, en.h / 2, colour_machine_active);
-						} else {
-							C2D_DrawRectSolid(en.pos.x - en.w / 4, en.pos.y + en.h / 4, 0, en.w / 2, en.h / 2, colour_blend(colour_machine_not_active, colour_machine_active, cur.machine.cooldown / 90.0f));
-						}
-						C2D_DrawRectSolid(en.pos.x, en.pos.y, 0, en.w, en.h, colour_machine_base);
-						break;
-					case ENEMY_TYPE_HAILER:
-						C2D_DrawTriangle(en.pos.x, en.pos.y, colour_hailer_shooter,
-										en.pos.x - en.w, en.pos.y - en.h / 1.5, colour_hailer_shooter_top,
-										en.pos.x, en.pos.y - en.h * 1.2 , colour_hailer_shooter_top, 0);
-						C2D_DrawCircleSolid(en.pos.x, en.pos.y, 0, en.w, colour_hailer_base);
-						break;
-					case ENEMY_TYPE_BOSS:
-						boss_render(&cur);
-						break;
-					default:
-						break;
-				}
+				draw_enemy(cur);
 			}
 
 			// Draw bullets
 			for (int i = 0; i < num_bullets; i++) {
 				bullet cur = bullets[i];
-				switch (cur.from) {
-					case ENEMY_TYPE_NONE:
-					case ENEMY_TYPE_SCATTER:
-					case ENEMY_TYPE_MACHINE:
-						C2D_DrawRectSolid(cur.pos.x, cur.pos.y, 0, 2, 2, colour_white);
-						break;
-					case ENEMY_TYPE_AIMER:
-						C2D_DrawCircleSolid(cur.pos.x, cur.pos.y, 0, 4, colour_aimer_bullet);
-						break;
-					case ENEMY_TYPE_HAILER:
-						C2D_DrawEllipseSolid(cur.pos.x, cur.pos.y, 0, 4, 2, colour_hailer_bullet);
-						break;
-					case ENEMY_TYPE_BOSS:
-						C2D_DrawCircleSolid(cur.pos.x, cur.pos.y, 0, 4, colour_red);
-						break;
-					default:
-						break;
-				}
+				draw_bullet(cur);
 			}
 
 		} else if (state == STATE_LEVEL_WIN) {

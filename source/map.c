@@ -59,5 +59,4 @@ void draw_map(bool unlocked) {
 	if (unlocked) {
 		C2D_DrawText(&unlocked_text, C2D_AtBaseline, 0, TOP_SCREEN_HEIGHT, 0, 1, 1);
 	}
-	printf("\x1b[2;1HFrame num: %d\x1b[K", frame_num);
 }

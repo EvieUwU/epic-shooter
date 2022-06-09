@@ -36,3 +36,61 @@ void background(u32 tl, u32 tr, u32 bl, u32 br) {
 void background_solid(u32 colour) {
 	background(colour, colour, colour, colour);
 }
+
+void draw_enemy(enemy cur) {
+	enemy_data en = cur.data;
+	switch (cur.type) {
+		case ENEMY_TYPE_SCATTER:
+			C2D_DrawTriangle(	en.pos.x - en.w, en.pos.y + en.h / 2, colour_scatter_front, 
+								en.pos.x, en.pos.y, colour_scatter_back,
+								en.pos.x - en.w / 4, en.pos.y + en.h / 2, colour_scatter_mid, 0);
+			C2D_DrawTriangle(	en.pos.x - en.w / 4, en.pos.y + en.h / 2, colour_scatter_mid,
+								en.pos.x, en.pos.y + en.h, colour_scatter_back,
+								en.pos.x - en.w, en.pos.y + en.h / 2, colour_scatter_front, 0);
+			break;
+		case ENEMY_TYPE_AIMER:
+			C2D_DrawCircle(en.pos.x, en.pos.y, 0, en.w,
+							colour_aimer_tl, colour_aimer_br, colour_aimer_bl, colour_aimer_br);
+			break;
+		case ENEMY_TYPE_MACHINE:
+			if (cur.machine.shooting) {
+				C2D_DrawRectSolid(en.pos.x - en.w / 4, en.pos.y + en.h / 4, 0, en.w / 2, en.h / 2, colour_machine_active);
+			} else {
+				C2D_DrawRectSolid(en.pos.x - en.w / 4, en.pos.y + en.h / 4, 0, en.w / 2, en.h / 2, colour_blend(colour_machine_not_active, colour_machine_active, cur.machine.cooldown / 90.0f));
+			}
+			C2D_DrawRectSolid(en.pos.x, en.pos.y, 0, en.w, en.h, colour_machine_base);
+			break;
+		case ENEMY_TYPE_HAILER:
+			C2D_DrawTriangle(en.pos.x, en.pos.y, colour_hailer_shooter,
+							en.pos.x - en.w, en.pos.y - en.h / 1.5, colour_hailer_shooter_top,
+							en.pos.x, en.pos.y - en.h * 1.2 , colour_hailer_shooter_top, 0);
+			C2D_DrawCircleSolid(en.pos.x, en.pos.y, 0, en.w, colour_hailer_base);
+			break;
+		case ENEMY_TYPE_BOSS:
+			boss_render(&cur);
+			break;
+		default:
+			break;
+	}
+}
+
+void draw_bullet(bullet cur) {
+	switch (cur.from) {
+		case ENEMY_TYPE_NONE:
+		case ENEMY_TYPE_SCATTER:
+		case ENEMY_TYPE_MACHINE:
+			C2D_DrawRectSolid(cur.pos.x, cur.pos.y, 0, 2, 2, colour_white);
+			break;
+		case ENEMY_TYPE_AIMER:
+			C2D_DrawCircleSolid(cur.pos.x, cur.pos.y, 0, 4, colour_aimer_bullet);
+			break;
+		case ENEMY_TYPE_HAILER:
+			C2D_DrawCircleSolid(cur.pos.x, cur.pos.y, 0, 3, colour_hailer_bullet);
+			break;
+		case ENEMY_TYPE_BOSS:
+			C2D_DrawCircleSolid(cur.pos.x, cur.pos.y, 0, 4, colour_red);
+			break;
+		default:
+			break;
+	}
+}
