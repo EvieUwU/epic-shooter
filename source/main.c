@@ -140,7 +140,7 @@ int time_since_last_enemy_spawn = 0;
 
 bool paused = false;
 
-int current_level = 1;
+int next_level = 1;
 
 game_state state = STATE_MAP;
 int since_state_change = 0;
@@ -377,7 +377,7 @@ int main(int argc, char* argv[]) {
 				if (unlocked || 
 					((selected_map == 0 || won_levels[selected_map - 1]) && !won_levels[selected_map])) {
 					setState(STATE_LEVEL);
-					current_level = selected_map + 1;
+					next_level = selected_map + 1;
 					last_wave_spawn = 0;
 					next_wave = 0;
 				}
@@ -417,7 +417,7 @@ int main(int argc, char* argv[]) {
 				}
 			}
 
-			level_spawner(current_level - 1, levels);
+			level_spawner(next_level - 1, levels);
 
 			if (unlocked)
 				pl.health = pl.max_health;
@@ -612,8 +612,8 @@ int main(int argc, char* argv[]) {
 				}
 
 				int total_health = 0;
-				for (int i = 0; i < levels[current_level - 1].num_waves; i++) {
-					wave cur = levels[current_level - 1].waves[i];
+				for (int i = 0; i < levels[next_level - 1].num_waves; i++) {
+					wave cur = levels[next_level - 1].waves[i];
 					if (cur.flags & WAVE_TYPE_ENEMY) {
 						for (int j = 0; j < cur.enemy_wave.num_enemies; j++) {
 							switch (cur.enemy_wave.enemies[j]) {
@@ -650,7 +650,7 @@ int main(int argc, char* argv[]) {
 				if (bullets_fired >= bullets * 1.25f) {
 					set_bonus_active("Cheapskate", false);
 				}
-				if (bullets_fired >= bullets * 6) {
+				if (bullets_fired >= bullets * 4) {
 					set_bonus_active("Triggerhappy", true);
 				}
 			}
@@ -765,6 +765,10 @@ int main(int argc, char* argv[]) {
 							while (num_enemies > 0) {
 								remove_enemy(0);
 							}
+							if (final_score > levels[next_level - 1].high_score) {
+								levels[next_level - 1].high_score = final_score;
+							}
+							score = 0;
 						}
 					}
 				}
@@ -786,7 +790,7 @@ int main(int argc, char* argv[]) {
 
 			float bar_width = 2 * BOTTOM_SCREEN_WIDTH / 3;
 			C2D_DrawRectSolid(BOTTOM_SCREEN_WIDTH / 6 - 4, 8, 0, bar_width + 8, 16, colour_white);
-			level lv = levels[current_level - 1];
+			level lv = levels[next_level - 1];
 			float total_duration = 0;
 			for (int i = 0; i < lv.num_waves; i++) {
 				total_duration += lv.waves[i].duration;

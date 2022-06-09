@@ -71,6 +71,8 @@ typedef struct bullet {
 #include "map.h"
 #include "levels.h"
 
+#include "save.h"
+
 #include "levels/boss_logic.h"
 
 #include "levels/level1.h"
@@ -106,7 +108,7 @@ extern player pl;
 extern enemy enemies[MAX_ENEMIES];
 extern int num_enemies;
 
-extern int current_level;
+extern int next_level;
 extern int time_since_last_enemy_spawn;
 
 extern bool paused;

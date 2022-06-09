@@ -1,4 +1,5 @@
 typedef struct level {
+	u32 high_score;
 	int num_waves;
 	wave waves[64];
 } level;
