@@ -5,7 +5,7 @@ wow this is a very cool game!!!!!!!!!!!!!
 ## Features
 
 - many levels
-- shit performance (probably)
+- shit performance (probably) (not really it still runs decently)
 - awful graphics
 
 ## Documentation
