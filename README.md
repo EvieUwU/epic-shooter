@@ -22,6 +22,6 @@ a: youre ass dumb and also i cant provide the gfx folder because im too based an
 
 ## version
 
-v1.1.0
+v1.2.1
 
 i am going insane i dont know if you could tell
