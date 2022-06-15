@@ -57,6 +57,12 @@ typedef struct bonus {
 	bool active;
 } bonus;
 
+typedef struct option {
+	C2D_Text text;
+	void (*cb) ();
+	u32 selectedColour;
+} option;
+
 #include "colours.h"
 #include "enemy.h"
 

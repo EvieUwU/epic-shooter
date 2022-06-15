@@ -239,6 +239,8 @@ int main(int argc, char* argv[]) {
 	C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
 	C2D_Prepare();
 
+	load_data();
+
 	levelsInit(levels);
 
 	top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
@@ -275,6 +277,26 @@ int main(int argc, char* argv[]) {
 	C2D_TextFontParse(&time_lose_text, font, g_staticBuf, "Timeout...");
 	C2D_TextOptimize(&time_lose_text);
 
+	C2D_Text settings_text;
+	C2D_TextFontParse(&settings_text, font, g_staticBuf, "Press Start for Settings");
+	C2D_TextOptimize(&settings_text);
+
+	C2D_Text return_text;
+	C2D_TextFontParse(&return_text, font, g_staticBuf, "Press Start to go back.");
+	C2D_TextOptimize(&return_text);
+
+	int num_options = 2;
+	option options_text[num_options];
+	C2D_TextFontParse(&options_text[0].text, font, g_staticBuf, "Force Save Data");
+	options_text[0].selectedColour = colour_green;
+	options_text[0].cb = save_data;
+	C2D_TextFontParse(&options_text[1].text, font, g_staticBuf, "Reset Game Data");
+	options_text[1].selectedColour = colour_red;
+	options_text[1].cb = clear_data;
+	for (int i = 0; i < num_options; i++) {
+		C2D_TextOptimize(&options_text[i].text);
+	}
+
 	init_sprites();
 	init_level_text(font, g_staticBuf);
 
@@ -284,6 +306,7 @@ int main(int argc, char* argv[]) {
 	int num_valid_bonuses = 0;
 
 	int bullets_fired = 0;
+	int selected_option = 0;
 
 	// Main loop
 	while (aptMainLoop()) {
@@ -296,18 +319,49 @@ int main(int argc, char* argv[]) {
 
 		if (kDown & KEY_START) {
 			paused = !paused;
+			selected_option = 0;
 		}
 
 		if (paused) {
-			C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
-			C2D_TargetClear(top, colour_clear);
-			C2D_SceneBegin(top);
+			if (state != STATE_MAP) {
+				C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
+				C2D_TargetClear(top, colour_clear);
+				C2D_SceneBegin(top);
 
-			C2D_DrawText(&paused_text, 0, TOP_SCREEN_WIDTH / 2 - paused_text.width / 2, TOP_SCREEN_HEIGHT / 2, 0.0f, 1, 1);
+				C2D_DrawText(&paused_text, 0, TOP_SCREEN_WIDTH / 2 - paused_text.width / 2, TOP_SCREEN_HEIGHT / 2, 0.0f, 1, 1);
 
-			C3D_FrameEnd(0);
-			delay();
-			continue;
+				C3D_FrameEnd(0);
+				delay();
+				continue;
+			} else {
+				C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
+				C2D_TargetClear(top, colour_clear);
+				C2D_SceneBegin(top);
+
+				if ((kDown & KEY_CPAD_DOWN || kDown & KEY_DDOWN) && selected_option < num_options - 1) {
+					selected_option++;
+				} else if ((kDown & KEY_CPAD_UP || kDown & KEY_DUP) && selected_option > 0) {
+					selected_option--;
+				}
+
+				for (int i = 0; i < num_options; i++) {
+					C2D_DrawText(&options_text[i].text, C2D_WithColor, TOP_SCREEN_WIDTH / 2 - options_text[i].text.width / 2, i * 32 + 8, 0, 1, 1, selected_option == i ? options_text[i].selectedColour : colour_black);
+				}
+
+				C2D_TargetClear(bottom, colour_clear);
+				C2D_SceneBegin(bottom);
+				C3D_FrameDrawOn(bottom);
+
+				C2D_DrawText(&return_text, C2D_AtBaseline, BOTTOM_SCREEN_WIDTH / 2 - return_text.width * 0.8 / 2, BOTTOM_SCREEN_HEIGHT - 8, 0.0f, 0.8, 0.8);
+
+				C3D_FrameEnd(0);
+
+				if (kDown & KEY_A) {
+					options_text[selected_option].cb();
+				}
+				delay();
+				continue;
+			}
 		}
 
 		if (state == STATE_DEAD) {
@@ -769,6 +823,7 @@ int main(int argc, char* argv[]) {
 								levels[next_level - 1].high_score = final_score;
 							}
 							score = 0;
+							save_data();
 						}
 					}
 				}
@@ -849,6 +904,19 @@ int main(int argc, char* argv[]) {
 				}
 			}
 			free(text);
+		} else if (state == STATE_MAP) {
+			char *text = malloc(sizeof(*text) * 128);
+			sprintf(text, "High Score: %ld", levels[selected_map].high_score);
+			C2D_Text text_obj;
+			C2D_TextBuf buf = C2D_TextBufNew(strlen(text));
+			C2D_TextFontParse(&text_obj, font, buf, text);
+			C2D_TextOptimize(&text_obj);
+			float w, h;
+			C2D_TextGetDimensions(&text_obj, 1, 1, &w, &h);
+			C2D_DrawText(&text_obj, 0, BOTTOM_SCREEN_WIDTH / 2 - (w / 2.0f), 8, 0, 1, 1);
+			C2D_TextBufDelete(buf);
+			C2D_TextGetDimensions(&settings_text, 0.8, 0.8, &w, &h);
+			C2D_DrawText(&settings_text, C2D_AtBaseline, BOTTOM_SCREEN_WIDTH / 2 - (w / 2.0f), BOTTOM_SCREEN_HEIGHT - 8, 0, 0.8, 0.8);
 		}
 
 		C3D_FrameEnd(0);

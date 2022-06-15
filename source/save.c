@@ -10,7 +10,6 @@ bool save_data() {
 		closedir(dir);
 	}
 
-
 	FILE *fp = fopen("epic-shooter/save.bin", "w");
 	if (!fp) {
 		return false;
@@ -52,5 +51,12 @@ bool load_data() {
 	}
 
 	fclose(fp);
+	return true;
+}
+
+bool clear_data() {
+	for (int i = 0; i < num_levels; i++) {
+		levels[i].high_score = 0;
+	}
 	return true;
 }
