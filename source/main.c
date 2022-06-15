@@ -163,6 +163,8 @@ int next_wave = 0;
 int score = 0;
 int final_score = 0;
 
+int bullet_damage = 10;
+
 C2D_Font font;
 
 C2D_Text unlocked_text;
@@ -500,8 +502,8 @@ int main(int argc, char* argv[]) {
 								point v3 = (point){data->pos.x + 3 * data->w / 4, data->pos.y + data->h / 2};
 
 								if (inside_tri(cur->pos, v1, v2, v3)) {
-									data->health -= 10;
-									score += 10;
+									data->health -= bullet_damage;
+									score += bullet_damage;
 									if (data->health <= 0) {
 										remove_enemy(j);
 									}
@@ -513,8 +515,8 @@ int main(int argc, char* argv[]) {
 								v2 = (point){data->pos.x, data->pos.y + data->h};
 
 								if (inside_tri(cur->pos, v1, v2, v3)) {
-									data->health -= 10;
-									score += 10;
+									data->health -= bullet_damage;
+									score += bullet_damage;
 									if (data->health <= 0) {
 										remove_enemy(j);
 									}
@@ -529,8 +531,8 @@ int main(int argc, char* argv[]) {
 								float dy = cur->pos.y - data->pos.y;
 								float dist = dx * dx + dy * dy;
 								if (dist <= data->w * data->w) {
-									data->health -= 10;
-									score += 10;
+									data->health -= bullet_damage;
+									score += bullet_damage;
 									if (data->health <= 0) {
 										remove_enemy(j);
 									}
@@ -542,8 +544,8 @@ int main(int argc, char* argv[]) {
 								// Rectangle type enemies
 								point a = (point){data->pos.x, data->pos.y};
 								if (inside_rect(cur->pos, a, data->w, data->h)) {
-									data->health -= 10;
-									score += 10;
+									data->health -= bullet_damage;
+									score += bullet_damage;
 									if (data->health <= 0) {
 										remove_enemy(j);
 									}
@@ -700,7 +702,7 @@ int main(int argc, char* argv[]) {
 						}
 					}
 				}
-				int bullets = total_health / 10;
+				int bullets = total_health / bullet_damage;
 				if (bullets_fired >= bullets * 1.25f) {
 					set_bonus_active("Cheapskate", false);
 				}

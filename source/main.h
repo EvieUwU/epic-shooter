@@ -138,6 +138,7 @@ extern int last_wave_spawn;
 extern int next_wave;
 
 extern int score;
+extern int bullet_damage;
 
 extern C2D_Text unlocked_text;
 

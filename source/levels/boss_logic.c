@@ -22,8 +22,8 @@ bool boss_collision(bullet *cur, enemy *en) {
 		case BOSS_TYPE_PROG:
 			point a = (point){en->data.pos.x, en->data.pos.y};
 			if (inside_rect(cur->pos, a, en->data.w, en->data.h)) {
-				en->data.health -= 10;
-				score += 10;
+				en->data.health -= bullet_damage;
+				score += bullet_damage;
 				return true;
 			}
 			return false;
